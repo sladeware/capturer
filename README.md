@@ -15,9 +15,11 @@ You can adjust the entropy threshold to your environment, which results in more 
 - Execute: sudo apt-get install python-scipy
 - Execute: sudo apt-get install python-picamera
 - Copy capturer.init to /etc/init.d
+- Create the directory '/home/pi/capturer'
+- Copy capturer.py to /home/pi/capturer
 - Create the directory '/home/pi/capturer/images'
 - Execute: sudo service capturer defaults
-- Restart your Raspberry Pi
+- Restart your Raspberry Pi or execute: sudo service capturer start
 - Execute: 'tail -f /var/log/capturer.log' and watch the log for errors
 - Type 'CTL-C' to break out of the log tailing
 - You should now have have interesting photos stored in the images directory
