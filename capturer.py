@@ -78,6 +78,8 @@ def setup(camera):
     camera.resolution = RESOLUTION
     camera.framerate = 30
     camera.iso = ISO
+    camera.hflip = True
+    camera.vflip = True
 
     # Give the camera's auto-exposure and auto-white-balance algorithms
     # some time to measure the scene and determine appropriate values
