@@ -27,7 +27,12 @@ LOG_FILENAME = "/var/log/capturer.log"
 LOG_LEVEL = logging.INFO  # Could be e.g. "DEBUG" or "WARNING"
 
 # The entropy threshold. Store the file if we are greater or equal to it.
-THRESHOLD = 4.0
+THRESHOLD_DAY = 4.0
+THRESHOLD_NIGHT = 0.5
+
+# When day and night start. The hour they start. 24 hour time.
+DAY_START_HOUR = 6
+NIGHT_START_HOUR = 19
 
 # Sets the ISO to be used for captures. Valid values are: 100, 200, 320, 400, 500, 640, 800..
 ISO = 200
@@ -140,7 +145,14 @@ with picamera.PiCamera() as camera:
     while True:
         new = capture(camera)
         threshold_value = compare_images(current, new)
-        if THRESHOLD <= threshold_value:
-            current = new
-            save(current, str(threshold_value))
+        hour = int(datetime.now().strftime('%H'))
+        if DAY_START_HOUR <= hour <= NIGHT_START_HOUR:
+            if THRESHOLD_DAY <= threshold_value:
+                current = new
+                save(current, str(threshold_value))
+        else:
+            if THRESHOLD_NIGHT <= threshold_value:
+                current = new
+                save(current, str(threshold_value))
+                
 
