@@ -2,6 +2,7 @@
 # Image capturer that saves jpgs with differences.
 
 import argparse
+import gdata.spreadsheet.service
 import io
 import logging
 import logging.handlers
@@ -16,6 +17,13 @@ from scipy.misc import imread
 from scipy.linalg import norm
 from scipy import sum, average
 from PIL import Image, ImageChops
+
+# For monitoring setup (gdata)
+EMAIL = ''
+PASSWORD = ''
+SPREADSHEET_KEY = '1jisgXtmj31KXqg-4y_UgXMLREgbCgRznA6FO1IVo5Pc' # key param
+WORKSHEET_ID = 'od6' # default
+COLUMN_NAME = 'red'
 
 # Where image files are stored
 DIRECTORY = '/home/pi/capturer/images/'
@@ -90,11 +98,15 @@ def setup(camera):
     # some time to measure the scene and determine appropriate values
     time.sleep(2)
 
-def save(img, value):
+def save(img, value, client):
     name = datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.' + value + '.jpg'
     img.save(DIRECTORY + name)
     logger.info('Saved image: ' + name)
-
+    try:
+        client.InsertRow({COLUMN_NAME : name}, SPREADSHEET_KEY, WORKSHEET_ID)
+    except Exception as e:
+        logger.info(e)
+        
 
 ## START OF MAIN CODE ##
 # TODO(slade): Clean this up.
@@ -136,12 +148,20 @@ sys.stdout = MyLogger(logger, logging.INFO)
 # Replace stderr with logging to file at ERROR level
 sys.stderr = MyLogger(logger, logging.ERROR)
 
+# Setup monitoring
+client = gdata.spreadsheet.service.SpreadsheetsService()
+#client.debug = True
+client.email = EMAIL
+client.password = PASSWORD
+client.source = 'Turtle Monitor Client'
+client.ProgrammaticLogin()
+
 logger.info('Starting at: ' + str(datetime.now().strftime('%Y/%m/%d %H:%M:%S')))
 with picamera.PiCamera() as camera:
     setup(camera)
     logger.info('Capturing images.')
     current = capture(camera)
-    save(current, 'start')
+    save(current, 'start', client)
     while True:
         new = capture(camera)
         threshold_value = compare_images(current, new)
@@ -149,10 +169,9 @@ with picamera.PiCamera() as camera:
         if DAY_START_HOUR <= hour <= NIGHT_START_HOUR:
             if THRESHOLD_DAY <= threshold_value:
                 current = new
-                save(current, str(threshold_value))
+                save(current, str(threshold_value), client)
         else:
             if THRESHOLD_NIGHT <= threshold_value:
                 current = new
-                save(current, str(threshold_value))
-                
+                save(current, str(threshold_value), client)
 
