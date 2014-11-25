@@ -9,6 +9,7 @@ import logging.handlers
 import math, sys, numpy as np
 import picamera
 import signal
+import socket
 import sys
 import time
 
@@ -23,7 +24,9 @@ EMAIL = ''
 PASSWORD = ''
 SPREADSHEET_KEY = '1jisgXtmj31KXqg-4y_UgXMLREgbCgRznA6FO1IVo5Pc' # key param
 WORKSHEET_ID = 'od6' # default
-COLUMN_NAME = 'red'
+COLUMN_NAME = socket.gethostname() # Must match the spreadsheet column
+COLUMN_TIMESTAMP = COLUMN_NAME + '-timestamp'
+COLUMN_ENTROPY = COLUMN_NAME + '-entropy'
 
 # Where image files are stored
 DIRECTORY = '/home/pi/capturer/images/'
@@ -100,10 +103,12 @@ def setup(camera):
 
 def save(img, value, client):
     name = datetime.now().strftime('%Y-%m-%d_%H-%M-%S') + '.' + value + '.jpg'
+    timestamp = datetime.now().strftime('%m/%d/%Y %H:%M:%S')
     img.save(DIRECTORY + name)
     logger.info('Saved image: ' + name)
+    row = {COLUMN_TIMESTAMP : timestamp, COLUMN_ENTROPY : value}
     try:
-        client.InsertRow({COLUMN_NAME : name}, SPREADSHEET_KEY, WORKSHEET_ID)
+        client.InsertRow(row, SPREADSHEET_KEY, WORKSHEET_ID)
     except Exception as e:
         logger.info(e)
         
@@ -161,7 +166,7 @@ with picamera.PiCamera() as camera:
     setup(camera)
     logger.info('Capturing images.')
     current = capture(camera)
-    save(current, 'start', client)
+    save(current, '0', client)
     while True:
         new = capture(camera)
         threshold_value = compare_images(current, new)
