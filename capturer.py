@@ -57,10 +57,17 @@ ISO = 500
 RESOLUTION = (2592, 1944)
 
 # Cropping constants
+<<<<<<< Updated upstream
 TOP_W = 850
 TOP_H = 700
 BOT_W = 1550
 BOT_H = 1400
+=======
+TOP_W = 900
+TOP_H = 500
+BOT_W = 1600
+BOT_H = 1250
+>>>>>>> Stashed changes
 ENABLE_CROPPING = True
 
 # Make a class we can use to capture stdout and sterr in the log
@@ -234,7 +241,14 @@ try:
             if THRESHOLD <= threshold_value:
                 current = new
                 save(current, str(threshold_value), client, latest)
+<<<<<<< Updated upstream
 except:
     logger.info('Problems setting up camera')
 
 
+=======
+except Exception as e:
+    print e
+    logger.info('Problems setting up camera. ')
+    logger.info(str(e))
+>>>>>>> Stashed changes
