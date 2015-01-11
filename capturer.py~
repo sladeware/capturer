@@ -20,7 +20,7 @@ from scipy import sum, average
 from PIL import Image, ImageChops
 
 # Enable debugging
-DEBUG = False
+DEBUG  = False
 
 # HTML template to view recent photos
 INDEX_HTML = '/home/pi/capturer/latest/index.html'
