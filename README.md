@@ -10,6 +10,8 @@ The capturer runs as a daemon and uses the Pi camera to capture images every 15 
 
 You can adjust the entropy threshold to your environment, which results in more or less images being captured with fewer or greater differences. Please take a look at the beginning of the source code for 'THRESHOLD'. A higher value means the images are more different before saving a file.
 
+The capturer generates an index.html page that shows that most recent (in the past 24 hours) images captured. You will need to install a web server and configure the 'INDEX_HTML' directory constant in the capturer.py file to make this work.
+
 **Installation**
 - Setup your Pi with the latest Raspian and Pi Cam
 - Execute: sudo apt-get install python-scipy
