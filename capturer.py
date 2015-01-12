@@ -29,6 +29,9 @@ IMG_SRC1 = '<p><img src=\"./images/'
 IMG_SRC2 = '\"><p><hr>'
 FOOTER = '</h2></body></html>'
 
+# How many days in the past to show images on the index.html page
+DAYS_IN_PAST = 1
+
 # For monitoring setup (gdata)
 EMAIL = ''
 PASSWORD = ''
@@ -77,21 +80,21 @@ def write(self, message):
 
 class LatestIndexPage(object):
     def __init__(self):
-        self.images = [[]]
+        self.images = None
 
     def generate_index_html(self, name, now):
-        yesterday = now  - timedelta(hours = 24)
-        self.images.insert(0, [name, now]) # Push to front of list
-        new_images = [[]]
+        yesterday = now - timedelta(days = DAYS_IN_PAST)
+        if self.images:
+            self.images.insert(0, [name, now]) # Push to front of list
+        else:
+            self.images = [[name, now]]
         html = HEADER
-        for image in self.images:
-            if not image:
-                continue
-            timestamp = image[1]
-            if timestamp > yesterday:
-                html += timestamp.strftime('%m/%d/%Y %H:%M:%S')
+        for image in self.images[:]:
+            if image[1] > yesterday:
+                html += image[1].strftime('%m/%d/%Y %H:%M:%S')
                 html += IMG_SRC1 + image[0] + IMG_SRC2
-                new_images.insert(0, image)
+            else:
+                self.images.remove(image)
         html += FOOTER
         try:
             f = open(INDEX_HTML, 'w')
@@ -99,8 +102,7 @@ class LatestIndexPage(object):
             f.close
         except:
             logger.info('Problems writing index.html:', INDEX_HTML)
-        self.images = new_images
-
+  
 def handler(signum, frame):
     logger.info('Good bye!')
     sys.exit(0)
