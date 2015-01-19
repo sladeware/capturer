@@ -23,6 +23,9 @@ The capturer generates an index.html page that shows that most recent (in the pa
 - Copy __init__.py to /home/pi/capturer
 - Review settings.py and make any required updates
 - Create the directory '/home/pi/capturer/images'
+- Install Apache: sudo apt-get install apache2 -y
+- Execute: mkdir [CAPTURER INSTALL DIRECTORY]/latest
+- Execute: sudo ln -s [CAPTURER INSTALL DIRECTORY]/latest /var/www/latest
 - Execute: sudo service capturer defaults
 - Restart your Raspberry Pi or execute: sudo service capturer start
 - Execute: 'tail -f /var/log/capturer.log' and watch the log for errors
