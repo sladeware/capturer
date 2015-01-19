@@ -8,6 +8,7 @@ import logging
 import logging.handlers
 import math, sys, numpy as np
 import picamera
+import settings as s
 import signal
 import socket
 import sys
@@ -18,53 +19,6 @@ from scipy.misc import imread
 from scipy.linalg import norm
 from scipy import sum, average
 from PIL import Image, ImageChops
-
-# Enable debugging
-DEBUG = False
-
-# HTML template to view recent photos
-INDEX_HTML = '/home/pi/capturer/latest/index.html'
-HEADER = '<p><h1>The last three photos, newest first are given below:</h1><h2></p><br>'
-IMG_SRC1 = '<p><img src=\"./images/'
-IMG_SRC2 = '\"><p><hr>'
-FOOTER = '</h2></body></html>'
-
-# How many days in the past to show images on the index.html page
-DAYS_IN_PAST = 1
-
-# For monitoring setup (gdata)
-EMAIL = ''
-PASSWORD = ''
-SPREADSHEET_KEY = '' # key param
-WORKSHEET_ID = 'od6' # default
-COLUMN_NAME = socket.gethostname() # Must match the spreadsheet column
-COLUMN_TIMESTAMP = COLUMN_NAME + '-timestamp'
-COLUMN_ENTROPY = COLUMN_NAME + '-entropy'
-
-# Where image files are stored
-DIRECTORY = '/home/pi/capturer/images/'
-
-# Where logs are stored
-LOG_FILENAME = "/var/log/capturer.log"
-
-# Affects the amount of logs we produce
-LOG_LEVEL = logging.INFO  # Could be e.g. "DEBUG" or "WARNING"
-
-# The entropy threshold. Store the file if we are greater or equal to it.
-THRESHOLD = 0.9
-
-# Sets the ISO to be used for captures. Valid values are: 100, 200, 320, 400, 500, 640, 800..
-ISO = 500
-
-# The image resolution in pixels (W x H)
-RESOLUTION = (2592, 1944)
-
-# Cropping constants
-TOP_W = 900
-TOP_H = 725
-BOT_W = 1550
-BOT_H = 1200
-ENABLE_CROPPING = True
 
 # Make a class we can use to capture stdout and sterr in the log
 class MyLogger(object):
@@ -83,25 +37,26 @@ class LatestIndexPage(object):
         self.images = None
 
     def generate_index_html(self, name, now):
-        yesterday = now - timedelta(days = DAYS_IN_PAST)
+        yesterday = now - timedelta(days = s.DAYS_IN_PAST)
         if self.images:
             self.images.insert(0, [name, now]) # Push to front of list
         else:
             self.images = [[name, now]]
-        html = HEADER
+        begin = datetime.now() - timedelta(days = s.DAYS_IN_PAST)
+        html = s.HEADER1 + begin.strftime('%m/%d/%Y %H:%M') + s.HEADER2
         for image in self.images[:]:
             if image[1] > yesterday:
                 html += image[1].strftime('%m/%d/%Y %H:%M:%S')
-                html += IMG_SRC1 + image[0] + IMG_SRC2
+                html += s.IMG_SRC1 + image[0] + s.IMG_SRC2
             else:
                 self.images.remove(image)
-        html += FOOTER
+        html += s.FOOTER
         try:
-            f = open(INDEX_HTML, 'w')
+            f = open(s.INDEX_HTML, 'w')
             f.write(html)
             f.close
         except:
-            logger.info('Problems writing index.html:', INDEX_HTML)
+            logger.info('Problems writing index.html:', s.INDEX_HTML)
   
 def handler(signum, frame):
     logger.info('Good bye!')
@@ -115,8 +70,8 @@ def capture(camera):
     stream.seek(0)
     image = Image.open(stream)
     w, h = image.size
-    if ENABLE_CROPPING:
-        return image.crop((TOP_W, TOP_H, BOT_W, BOT_H))
+    if s.ENABLE_CROPPING:
+        return image.crop((s.TOP_W, s.TOP_H, s.BOT_W, s.BOT_H))
     else:
         return image
 
@@ -130,8 +85,14 @@ def gray_histo(img):
     a = np.array(img.convert('L')).reshape((w*h))
     return np.histogramdd(a, bins=(16,), range=((0,256),))
 
+def histo(img):
+    if s.GRAY:
+        return gray_histo(img)
+    else:
+        return color_histo(img)
+
 def image_entropy(img):
-    h,e = gray_histo(img)
+    h,e = histo(img)
     prob = h/np.sum(h) # normalize
     prob = prob[prob>0] # remove zeros
     return -np.sum(prob*np.log2(prob))
@@ -143,25 +104,30 @@ def compare_images(img1, img2):
 
 def setup(camera):
     logger.info('Setting camera quality settings.')
-    camera.resolution = RESOLUTION
+    camera.resolution = s.RESOLUTION
     camera.framerate = 30
-    camera.iso = ISO
-    camera.hflip = True
-    camera.vflip = True
+    camera.iso = s.ISO
+    camera.hflip = s.H_FLIP
+    camera.vflip = s.V_FLIP
 
     # Give the camera's auto-exposure and auto-white-balance algorithms
     # some time to measure the scene and determine appropriate values
     time.sleep(2)
 
 def save(img, value, client, latest):
+    """
+    We save the image to a file on the local filesystem as a JPG. We also
+    push the timestamp and entropy values to a Google Spreadsheet
+    for the purposes of monitoring and tuning the entropy threshold.
+    """
     now = datetime.now()
     name = now.strftime('%Y-%m-%d_%H-%M-%S') + '.' + value + '.jpg'
     timestamp = now.strftime('%m/%d/%Y %H:%M:%S')
-    img.save(DIRECTORY + name)
+    img.save(s.DIRECTORY + name)
     logger.info('Saved image: ' + name)
-    row = {COLUMN_TIMESTAMP : timestamp, COLUMN_ENTROPY : value}
+    row = {s.COLUMN_TIMESTAMP : timestamp, s.COLUMN_ENTROPY : value}
     try:
-        client.InsertRow(row, SPREADSHEET_KEY, WORKSHEET_ID)
+        client.InsertRow(row, s.SPREADSHEET_KEY, s.WORKSHEET_ID)
     except Exception as e:
         logger.info(e)
     latest.generate_index_html(name, now)
@@ -174,22 +140,22 @@ signal.signal(signal.SIGINT, handler)
 
 # Define and parse command line arguments
 parser = argparse.ArgumentParser(description="My simple Python service")
-parser.add_argument("-l", "--log", help="file to write log to (default '" + LOG_FILENAME + "')")
+parser.add_argument("-l", "--log", help="file to write log to (default '" + s.LOG_FILENAME + "')")
 
 # If the log file is specified on the command line then override the default
 args = parser.parse_args()
 if args.log:
-    LOG_FILENAME = args.log
+    s.LOG_FILENAME = args.log
 
 # Configure logging to log to a file, making a new file at midnight and keeping the last 3 day's data
 # Give the logger a unique name (good practice)
 logger = logging.getLogger(__name__)
 
 # Set the log level to LOG_LEVEL
-logger.setLevel(LOG_LEVEL)
+logger.setLevel(s.LOG_LEVEL)
 
 # Make a handler that writes to a file, making a new file at midnight and keeping 3 backups
-handler = logging.handlers.TimedRotatingFileHandler(LOG_FILENAME, when="midnight", backupCount=3)
+handler = logging.handlers.TimedRotatingFileHandler(s.LOG_FILENAME, when="midnight", backupCount=3)
 
 # Format each log message like this
 formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s')
@@ -201,20 +167,20 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 # Replace stdout with logging to file at INFO level
-if not DEBUG:
+if not s.DEBUG:
     sys.stdout = MyLogger(logger, logging.INFO)
 
 # Replace stderr with logging to file at ERROR level
-if not DEBUG:
+if not s.DEBUG:
     sys.stderr = MyLogger(logger, logging.ERROR)
 
-# Setup monitoring
+# Setup monitoring via a Google Spreadsheet
 client = gdata.spreadsheet.service.SpreadsheetsService()
-if DEBUG:
+if s.DEBUG:
     client.debug = True
-client.email = EMAIL
-client.password = PASSWORD
-client.source = 'Turtle Monitor Client'
+client.email = s.EMAIL
+client.password = s.PASSWORD
+client.source = 'Capturer Monitor Client'
 try:
     client.ProgrammaticLogin()
 except:
@@ -233,7 +199,7 @@ try:
         while True:
             new = capture(camera)
             threshold_value = compare_images(current, new)
-            if THRESHOLD <= threshold_value:
+            if s.THRESHOLD <= threshold_value:
                 current = new
                 save(current, str(threshold_value), client, latest)
 except Exception as e:

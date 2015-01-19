@@ -19,6 +19,9 @@ The capturer generates an index.html page that shows that most recent (in the pa
 - Copy capturer.init to /etc/init.d
 - Create the directory '/home/pi/capturer'
 - Copy capturer.py to /home/pi/capturer
+- Copy settings.py to /home/pi/capturer
+- Copy __init__.py to /home/pi/capturer
+- Review settings.py and make any required updates
 - Create the directory '/home/pi/capturer/images'
 - Execute: sudo service capturer defaults
 - Restart your Raspberry Pi or execute: sudo service capturer start
