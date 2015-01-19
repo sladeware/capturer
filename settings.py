@@ -4,6 +4,8 @@
 import logging
 import socket
 
+hostname = socket.gethostname()
+
 # Enable debugging
 DEBUG = False
 
@@ -16,7 +18,7 @@ GRAY = True
 
 # HTML template to view recent photos
 INDEX_HTML = '/home/pi/capturer/latest/index.html'
-HEADER1 = '<p><h1>All photos taken since '
+HEADER1 = '<h1>' + hostname + '</h1><p><h1>All photos taken since '
 HEADER2 = ', newest first:</h1><h2></p><br>'
 IMG_SRC1 = '<p><img src=\"./images/'
 IMG_SRC2 = '\"><p><hr>'
@@ -30,7 +32,7 @@ EMAIL = '[YOUR_EMAIL]@gmail.com'
 PASSWORD = '[YOUR_PASSWORD]'
 SPREADSHEET_KEY = '[YOUR_SPREADSHEET_KEY_PARAM]'
 WORKSHEET_ID = 'od6' # default
-COLUMN_NAME = socket.gethostname() # Must match the spreadsheet column
+COLUMN_NAME = hostname  # Must match the spreadsheet column
 COLUMN_TIMESTAMP = COLUMN_NAME + '-timestamp'
 COLUMN_ENTROPY = COLUMN_NAME + '-entropy'
 
