@@ -16,6 +16,9 @@ V_FLIP = True
 # Enable gray scale histograms, which ignores color when computing entropy
 GRAY = True
 
+# Use video port. Faster, but only supports up to 1080p.
+USE_VIDEO_PORT = True
+
 # HTML template to view recent photos
 INDEX_HTML = '/home/pi/capturer/latest/index.html'
 HEADER1 = '<h1>' + hostname + '</h1><p><h1>All photos taken since '

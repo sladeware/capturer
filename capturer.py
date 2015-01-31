@@ -65,7 +65,10 @@ def handler(signum, frame):
 def capture(camera):
     stream = io.BytesIO()
     camera.start_preview()
-    camera.capture(stream, format='jpeg')
+    if s.USE_VIDEO_PORT:
+        camera.capture(stream, format='jpeg', use_video_port=True)
+    else:
+        camera.capture(stream, format='jpeg')
     # "Rewind" the stream to the beginning so we can read its content
     stream.seek(0)
     image = Image.open(stream)
