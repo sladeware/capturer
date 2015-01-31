@@ -1,4 +1,4 @@
-B1;2cCapturer
+Capturer
 ==============
 
 Capture interesting images using your Raspberry Pi Cam automatically!
