@@ -114,6 +114,14 @@ def setup(camera):
     # some time to measure the scene and determine appropriate values
     time.sleep(2)
 
+def save_filename(name):
+    try:
+        f = open('/tmp/latest_capturer_image', 'w')
+        f.write(name)
+        f.close()
+    except Exception as e:
+        logger.info(e)
+
 def save(img, value, client, latest):
     """
     We save the image to a file on the local filesystem as a JPG. We also
@@ -124,6 +132,7 @@ def save(img, value, client, latest):
     name = now.strftime('%Y-%m-%d_%H-%M-%S') + '.' + value + '.jpg'
     timestamp = now.strftime('%m/%d/%Y %H:%M:%S')
     img.save(s.DIRECTORY + name)
+    save_filename(s.DIRECTORY + name)
     logger.info('Saved image: ' + name)
     row = {s.COLUMN_TIMESTAMP : timestamp, s.COLUMN_ENTROPY : value}
     try:
