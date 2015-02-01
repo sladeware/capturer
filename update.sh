@@ -51,7 +51,8 @@ while true; do
     # Display new image
     IMAGE=$(cat $IMAGE_FILE)
     if [[ "$LAST_IMAGE" != "$IMAGE" ]]; then
-        /usr/bin/fbi -T 2 -d /dev/fb1 -noverbose -a "$IMAGE"
+        cd $(/usr/bin/dirname $IMAGE)
+        /usr/bin/fbi -T 2 -d /dev/fb1 -f "DejaVu Sans Mono-11" -v -a $(/usr/bin/basename $IMAGE)
         LAST_IMAGE="$IMAGE"
     fi
 done
