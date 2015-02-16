@@ -21,7 +21,7 @@ USE_VIDEO_PORT = True
 
 # HTML template to view recent photos
 INDEX_HTML = '/home/pi/capturer/latest/index.html'
-HEADER1 = '<h1>' + hostname + '</h1><p><h1>All photos taken since '
+HEADER1 = '<head><meta http-equiv="refresh" content="300" /></head><body><html><h1>' + hostname + '</h1><p><h1>All photos taken since '
 HEADER2 = ', newest first:</h1><h2></p><br>'
 IMG_SRC1 = '<p><img src=\"./images/'
 IMG_SRC2 = '\"><p><hr>'
