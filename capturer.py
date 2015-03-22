@@ -134,6 +134,9 @@ def save(img, value, client, latest):
     now = datetime.now()
     name = now.strftime('%Y-%m-%d_%H-%M-%S') + '.' + value + '.jpg'
     timestamp = now.strftime('%m/%d/%Y %H:%M:%S')
+    if s.ENABLE_ROTATION:
+        logger.info("Rotating image by " + str(s.ROTATION_ANGLE) + " degrees.")
+        img = img.rotate(s.ROTATION_ANGLE)
     img.save(s.DIRECTORY + name)
     save_filename(s.DIRECTORY + name)
     logger.info('Saved image: ' + name)

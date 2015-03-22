@@ -10,11 +10,11 @@ hostname = socket.gethostname()
 DEBUG = False
 
 # Camera image flip constants
-H_FLIP = True
-V_FLIP = True
+H_FLIP = False
+V_FLIP = False
 
 # Enable gray scale histograms, which ignores color when computing entropy
-GRAY = True
+GRAY = False
 
 # Use video port. Faster, but only supports up to 1080p.
 USE_VIDEO_PORT = True
@@ -62,5 +62,9 @@ TOP_W = 900
 TOP_H = 725
 BOT_W = 1550
 BOT_H = 1200
-ENABLE_CROPPING = True
+ENABLE_CROPPING = False
+
+# Rotation contants. Rotation is counter-clockwise in degrees.
+ENABLE_ROTATION = False
+ROTATION_ANGLE = 0
 
