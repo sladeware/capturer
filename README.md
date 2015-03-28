@@ -21,8 +21,9 @@ The capturer generates an index.html page that shows that most recent (in the pa
 - Create the directory '/home/pi/capturer'
 - Execute: mkdir /home/pi/capturer/latest
 - Create the directory '/home/pi/capturer/images' assuming /home/pi/capturer is where you want it.
+- Execute: sudo ln -s /home/pi/capturer/latest /var/www/latest
+- Execute: sudo ln -s /home/pi/capturer/images /var/www/latest/images
 - Execute: sudo ln -s /home/pi/capturer/images /var/www/images
-- Execute: sudo ln -s /home/pi/capturer/latest /var/www/images/latest
 - Copy capturer.init to /etc/init.d
 - Copy capturer.py to /home/pi/capturer
 - Copy settings.py to /home/pi/capturer
