@@ -14,20 +14,20 @@ The capturer generates an index.html page that shows that most recent (in the pa
 
 **Installation**
 - Setup your Pi with the latest Raspian and Pi Cam
-- Execute: sudo apt-get install python-scipy
-- Execute: sudo apt-get install python-picamera
+- Execute: sudo apt-get install python-scipy -y
+- Execute: sudo apt-get install python-picamera -y
+- Install Apache: sudo apt-get install apache2 -y
 - Install gdata: See https://developers.google.com/gdata/articles/python_client_lib?csw=1#linuxZ
-- Copy capturer.init to /etc/init.d
 - Create the directory '/home/pi/capturer'
+- Execute: mkdir /home/pi/capturer/latest
+- Create the directory '/home/pi/capturer/images' assuming /home/pi/capturer is where you want it.
+- Execute: sudo ln -s /home/pi/capturer/images /var/www/images
+- Execute: sudo ln -s /home/pi/capturer/latest /var/www/images/latest
+- Copy capturer.init to /etc/init.d
 - Copy capturer.py to /home/pi/capturer
 - Copy settings.py to /home/pi/capturer
 - Copy \_\_init\_\_.py to /home/pi/capturer
 - Review settings.py and make any required updates
-- Create the directory '/home/pi/capturer/images' assuming /home/pi/capturer is where you want it.
-- Install Apache: sudo apt-get install apache2 -y
-- Execute: mkdir /home/pi/capturer/latest
-- Execute: sudo ln -s /home/pi/capturer/latest /var/www/images/latest
-- Execute: sudo ln -s /home/pi/capturer/images /var/www/images
 - Execute: sudo update-rc.d capturer defaults
 - Restart your Raspberry Pi or execute: sudo service capturer start
 - Execute: 'tail -f /var/log/capturer.log' and watch the log for errors
