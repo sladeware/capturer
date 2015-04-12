@@ -1,4 +1,8 @@
 # Restart stuck capturer programs by watching log mod times
+#
+# Put something like this in your root crontab:
+# */3 * * * * /usr/bin/sudo -H /usr/bin/python /home/pi/capturer/unsticker.py >> /dev/null 2>&1
+#
 
 import os
 import time
