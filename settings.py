@@ -9,6 +9,9 @@ hostname = socket.gethostname()
 # Enable debugging
 DEBUG = False
 
+# Enable the spreadsheet that stores a history of saved images and entropy values
+ENABLE_SPREADSHEET = False
+
 # Camera image flip constants
 H_FLIP = False
 V_FLIP = False

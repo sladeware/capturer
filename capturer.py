@@ -142,7 +142,8 @@ def save(img, value, client, latest):
     logger.info('Saved image: ' + name)
     row = {s.COLUMN_TIMESTAMP : timestamp, s.COLUMN_ENTROPY : value}
     try:
-        client.InsertRow(row, s.SPREADSHEET_KEY, s.WORKSHEET_ID)
+        if s.ENABLE_SPREADSHEET:
+            client.InsertRow(row, s.SPREADSHEET_KEY, s.WORKSHEET_ID)
     except Exception as e:
         logger.info(e)
     latest.generate_index_html(name, now)
@@ -190,16 +191,19 @@ if not s.DEBUG:
     sys.stderr = MyLogger(logger, logging.ERROR)
 
 # Setup monitoring via a Google Spreadsheet
-client = gdata.spreadsheet.service.SpreadsheetsService()
-if s.DEBUG:
-    client.debug = True
-client.email = s.EMAIL
-client.password = s.PASSWORD
-client.source = 'Capturer Monitor Client'
-try:
-    client.ProgrammaticLogin()
-except:
-    logger.info('Cannot login to Google')
+if s.ENABLE_SPREADSHEET:
+    client = gdata.spreadsheet.service.SpreadsheetsService()
+    if s.DEBUG:
+        client.debug = True
+    client.email = s.EMAIL
+    client.password = s.PASSWORD
+    client.source = 'Capturer Monitor Client'
+    try:
+        client.ProgrammaticLogin()
+    except:
+        logger.info('Cannot login to Google')
+else:
+    client = None
 
 # Setup Latest Index Page generator
 latest = LatestIndexPage()
