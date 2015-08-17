@@ -25,7 +25,7 @@ def save_image(cam, timestamp, width=1080):
 if __name__ == "__main__":
     try:
         cam = get_cam(os.getenv("DROPCAM_USERNAME"), os.getenv("DROPCAM_PASSWORD"))
-        timestamp = get_timestamp('%H-%M-%S_%d-%m-%Y')
+        timestamp = get_timestamp('%H:%M:%S_%d-%m-%Y')
         save_image(cam, timestamp)
     except Exception, err:
         print err
