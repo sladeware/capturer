@@ -31,11 +31,9 @@ def gen_header(title, desc, filename, header_filename='/Library/Webserver/Docume
 
 if __name__ == "__main__":
     try:
-        cam = get_cam(os.getenv("DROPCAM_USERNAME"), os.getenv("DROPCAM_PASSWORD"))
+        cam = get_cam(os.getenv('DROPCAM_USERNAME'), os.getenv('DROPCAM_PASSWORD'))
         timestamp = get_timestamp('%H:%M:%S_%d-%m-%Y')
         filename = save_image(cam, timestamp)
-        title = 'SF Living room Cam'
-        desc = 'These are Nestcam still images from our SF living room camera facing the Bay Bridge.'
-        gen_header(title, desc, filename)
+        gen_header(os.getenv('DROPCAM_TITLE'), os.getenv('DROPCAM_DESC'), filename)
     except Exception, err:
         print err
